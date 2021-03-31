@@ -1,0 +1,23 @@
+# Pre-requisites to running with cloud build
+# gcloud config set project PROJECT_ID
+# gcloud services enable --project $PROJECT_ID gcloud services enable container.googleapis.com cloudbuild.googleapis.com containeranalysis.googleapis.com
+# export CLOUDBUILD_SA=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')@cloudbuild.gserviceaccount.com
+# gcloud projects add-iam-policy-binding $PROJECT_ID --member serviceAccount:$CLOUDBUILD_SA --role roles/admin
+
+# This step builds the container image.
+- name: 'gcr.io/cloud-builders/docker'
+  id: Build
+  args:
+  - 'build'
+  - '-t'
+  - 'gcr.io/$PROJECT_ID/hello-cloudbuild:$SHORT_SHA'
+  - '.'
+
+# This step pushes the image to Container Registry
+# The PROJECT_ID and SHORT_SHA variables are automatically
+# replaced by Cloud Build.
+- name: 'gcr.io/cloud-builders/docker'
+  id: Push
+  args:
+  - 'push'
+  - 'gcr.io/$PROJECT_ID/hello-cloudbuild:$SHORT_SHA'
